@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+*.exe
+*.iws
+*.iml
+*.ipr
+*.log
