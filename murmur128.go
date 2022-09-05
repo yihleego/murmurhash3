@@ -55,6 +55,7 @@ func (h *MurmurHash128) HashBytesWithOffset(bytes []byte, offset, length int) *B
 func (h *MurmurHash128) make(bytes []byte) *BytesHashCode {
 	length := uint64(len(bytes))
 	h1, h2, buffer := h.bmix(uint64(h.seed), uint64(h.seed), bytes)
+
 	var k1, k2 uint64
 	switch len(buffer) & 15 {
 	case 15:
@@ -76,7 +77,7 @@ func (h *MurmurHash128) make(bytes []byte) *BytesHashCode {
 		k2 ^= uint64(buffer[9]) << 8
 		fallthrough
 	case 9:
-		k2 ^= uint64(buffer[8]) << 0
+		k2 ^= uint64(buffer[8])
 		fallthrough
 	case 8:
 		k1 ^= uint64(buffer[7]) << 56
@@ -100,7 +101,7 @@ func (h *MurmurHash128) make(bytes []byte) *BytesHashCode {
 		k1 ^= uint64(buffer[1]) << 8
 		fallthrough
 	case 1:
-		k1 ^= uint64(buffer[0]) << 0
+		k1 ^= uint64(buffer[0])
 	}
 
 	h1 ^= h.mixK1(k1)
@@ -118,11 +119,7 @@ func (h *MurmurHash128) make(bytes []byte) *BytesHashCode {
 	h1 += h2
 	h2 += h1
 
-	return &BytesHashCode{[]byte{
-		byte(h1 >> 0), byte(h1 >> 8), byte(h1 >> 16), byte(h1 >> 24),
-		byte(h1 >> 32), byte(h1 >> 40), byte(h1 >> 48), byte(h1 >> 56),
-		byte(h2 >> 0), byte(h2 >> 8), byte(h2 >> 16), byte(h2 >> 24),
-		byte(h2 >> 32), byte(h2 >> 40), byte(h2 >> 48), byte(h2 >> 56)}}
+	return h.makeHash(h1, h2)
 }
 
 func (h *MurmurHash128) mixK1(k1 uint64) uint64 {
@@ -167,4 +164,12 @@ func (h *MurmurHash128) fmix(k uint64) uint64 {
 	k *= 0xc4ceb9fe1a85ec53
 	k ^= k >> 33
 	return k
+}
+
+func (h *MurmurHash128) makeHash(h1, h2 uint64) *BytesHashCode {
+	return &BytesHashCode{[]byte{
+		byte(h1 >> 0), byte(h1 >> 8), byte(h1 >> 16), byte(h1 >> 24),
+		byte(h1 >> 32), byte(h1 >> 40), byte(h1 >> 48), byte(h1 >> 56),
+		byte(h2 >> 0), byte(h2 >> 8), byte(h2 >> 16), byte(h2 >> 24),
+		byte(h2 >> 32), byte(h2 >> 40), byte(h2 >> 48), byte(h2 >> 56)}}
 }

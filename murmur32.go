@@ -32,7 +32,7 @@ func (h *MurmurHash32) HashInt32(i int32) *Int32HashCode {
 	h1 := h.mixH1(uint32(h.seed), k1)
 
 	h1 = h.fmix(h1, 4)
-	return h.make(h1)
+	return h.makeHash(h1)
 }
 
 func (h *MurmurHash32) HashInt64(i int64) *Int32HashCode {
@@ -46,42 +46,45 @@ func (h *MurmurHash32) HashInt64(i int64) *Int32HashCode {
 	h1 = h.mixH1(h1, k1)
 
 	h1 = h.fmix(h1, 8)
-	return h.make(h1)
+	return h.makeHash(h1)
 }
 
 func (h *MurmurHash32) HashString(s string) *Int32HashCode {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
 	bytes := *(*[]byte)(unsafe.Pointer(&bh))
-	return h.HashBytesWithOffset(bytes, 0, len(bytes))
+	return h.HashBytes(bytes)
 }
 
 func (h *MurmurHash32) HashBytes(bytes []byte) *Int32HashCode {
-	return h.HashBytesWithOffset(bytes, 0, len(bytes))
+	return h.make(bytes)
 }
 
 func (h *MurmurHash32) HashBytesWithOffset(bytes []byte, offset, length int) *Int32HashCode {
-	h1 := uint32(h.seed)
-	k1 := uint32(0)
-	i := 0
-	for ; i <= length-4; i += 4 {
-		k1 = uint32(bytes[offset+i+3])<<24 | uint32(bytes[offset+i+2])<<16 |
-			uint32(bytes[offset+i+1])<<8 | uint32(bytes[offset+i])
-		k1 = h.mixK1(k1)
-		h1 = h.mixH1(h1, k1)
-	}
-	k1 = 0
-	for shift := 0; i < length; shift += 8 {
-		k1 ^= uint32(bytes[offset+i]) << shift
-		i++
-	}
-	h1 ^= h.mixK1(k1)
-	h1 = h.fmix(h1, uint32(length))
-	return h.make(h1)
+	return h.make(bytes[offset : offset+length])
 }
 
-func (h *MurmurHash32) make(hash uint32) *Int32HashCode {
-	return &Int32HashCode{int32(hash)}
+func (h *MurmurHash32) make(bytes []byte) *Int32HashCode {
+	length := uint32(len(bytes))
+	h1, buffer := h.bmix(uint32(h.seed), bytes)
+
+	var k1 uint32
+	switch len(buffer) & 3 {
+	case 3:
+		k1 ^= uint32(buffer[2]) << 16
+		fallthrough
+	case 2:
+		k1 ^= uint32(buffer[1]) << 8
+		fallthrough
+	case 1:
+		k1 ^= uint32(buffer[0])
+	}
+
+	h1 ^= h.mixK1(k1)
+
+	h1 = h.fmix(h1, length)
+
+	return h.makeHash(h1)
 }
 
 func (h *MurmurHash32) mixK1(k1 uint32) uint32 {
@@ -98,6 +101,16 @@ func (h *MurmurHash32) mixH1(h1, k1 uint32) uint32 {
 	return h1
 }
 
+func (h *MurmurHash32) bmix(h1 uint32, bytes []byte) (uint32, []byte) {
+	blocks := len(bytes) / 4
+	for i := 0; i < blocks; i++ {
+		k1 := *(*uint32)(unsafe.Pointer(&bytes[i*4]))
+		k1 = h.mixK1(k1)
+		h1 = h.mixH1(h1, k1)
+	}
+	return h1, bytes[blocks*4:]
+}
+
 // fmix Finalization mix - force all bits of a hash block to avalanche
 func (h *MurmurHash32) fmix(h1, length uint32) uint32 {
 	h1 ^= length
@@ -107,4 +120,8 @@ func (h *MurmurHash32) fmix(h1, length uint32) uint32 {
 	h1 *= 0xc2b2ae35
 	h1 ^= h1 >> 16
 	return h1
+}
+
+func (h *MurmurHash32) makeHash(h1 uint32) *Int32HashCode {
+	return &Int32HashCode{int32(h1)}
 }

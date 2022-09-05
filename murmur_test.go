@@ -2,7 +2,9 @@ package murmur3
 
 import (
 	"bytes"
+	"encoding/hex"
 	"math/bits"
+	"math/rand"
 	"strconv"
 	"testing"
 )
@@ -1080,33 +1082,123 @@ var Murmur128String = []*Sample{
 	{0x7fffffff, 0, 542411677, -2230831434911413347, []byte{157, 139, 84, 32, 161, 126, 10, 225, 183, 37, 93, 112, 38, 194, 184, 49}, "9d8b5420a17e0ae1b7255d7026c2b831", "An emoji (/ɪˈmoʊdʒiː/ i-MOH-jee; plural emoji or emojis) is a pictogram, logogram, ideogram or smiley embedded in text and used in electronic messages and web pages. The primary function of emoji is to fill in emotional cues otherwise missing from typed conversation. Some examples of emoji are 😂, 😃, 🧘🏻‍♂️, 🌍, 🌦️, 🍞, 🚗, 📞, 🎉, ❤️, 🍆, 🏁, among many others. Emoji exist in various genres, including facial expressions, common objects, places and types of weather, and animals. They are much like emoticons, but emoji are pictures rather than typographic approximations; the term \"emoji\" in the strict sense refers to such pictures which can be represented as encoded characters, but it is sometimes applied to messaging stickers by extension. Originally meaning pictograph, the word emoji comes from Japanese e (絵, 'picture') + moji (文字, 'character'); the resemblance to the English words emotion and emoticon is purely coincidental. The ISO 15924 script code for emoji is Zsye.", -1, -1},
 }
 
-func BenchmarkMurmur32(b *testing.B) {
-	buf := make([]byte, 8192)
-	for length := 1; length <= cap(buf); length *= 2 {
+func BenchmarkMurmur32HashInt(b *testing.B) {
+	murmur := New32()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt(i)
+	}
+}
+
+func BenchmarkMurmur32HashInt32(b *testing.B) {
+	murmur := New32()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt32(int32(i))
+	}
+}
+
+func BenchmarkMurmur32HashInt64(b *testing.B) {
+	murmur := New32()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt64(int64(i))
+	}
+}
+
+func BenchmarkMurmur32HashBytes(b *testing.B) {
+	murmur := New32()
+	data := make([]byte, 1<<10)
+	rand.Read(data)
+	for length := 1; length <= cap(data); length <<= 2 {
 		b.Run(strconv.Itoa(length), func(b *testing.B) {
-			buf = buf[:length]
+			data = data[:length]
 			b.SetBytes(int64(length))
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				murmur := New32()
-				murmur.HashBytes(buf)
+				murmur.HashBytes(data)
 			}
 		})
 	}
 }
 
-func BenchmarkMurmur128(b *testing.B) {
-	buf := make([]byte, 8192)
-	for length := 1; length <= cap(buf); length *= 2 {
+func BenchmarkMurmur32HashString(b *testing.B) {
+	murmur := New32()
+	data := make([]byte, 1<<10)
+	rand.Read(data)
+	for length := 1; length <= len(data); length <<= 2 {
 		b.Run(strconv.Itoa(length), func(b *testing.B) {
-			buf = buf[:length]
+			s := hex.EncodeToString(data[:length])
 			b.SetBytes(int64(length))
 			b.ReportAllocs()
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				murmur := New128()
-				murmur.HashBytes(buf)
+				murmur.HashString(s)
+			}
+		})
+	}
+}
+
+func BenchmarkMurmur128HashInt(b *testing.B) {
+	murmur := New128()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt(i)
+	}
+}
+
+func BenchmarkMurmur128HashInt32(b *testing.B) {
+	murmur := New128()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt32(int32(i))
+	}
+}
+
+func BenchmarkMurmur128HashInt64(b *testing.B) {
+	murmur := New128()
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		murmur.HashInt64(int64(i))
+	}
+}
+
+func BenchmarkMurmur128HashBytes(b *testing.B) {
+	murmur := New128()
+	data := make([]byte, 1<<10)
+	rand.Read(data)
+	for length := 1; length <= cap(data); length <<= 2 {
+		b.Run(strconv.Itoa(length), func(b *testing.B) {
+			data = data[:length]
+			b.SetBytes(int64(length))
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				murmur.HashBytes(data)
+			}
+		})
+	}
+}
+
+func BenchmarkMurmur128HashString(b *testing.B) {
+	murmur := New128()
+	data := make([]byte, 1<<10)
+	rand.Read(data)
+	for length := 1; length <= len(data); length <<= 2 {
+		b.Run(strconv.Itoa(length), func(b *testing.B) {
+			s := hex.EncodeToString(data[:length])
+			b.SetBytes(int64(length))
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				murmur.HashString(s)
 			}
 		})
 	}
