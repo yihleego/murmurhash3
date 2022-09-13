@@ -40,8 +40,7 @@ func (h *MurmurHash128) HashInt64(i int64) *BytesHashCode {
 func (h *MurmurHash128) HashString(s string) *BytesHashCode {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
-	bytes := *(*[]byte)(unsafe.Pointer(&bh))
-	return h.make(bytes)
+	return h.HashBytes(*(*[]byte)(unsafe.Pointer(&bh)))
 }
 
 func (h *MurmurHash128) HashBytes(bytes []byte) *BytesHashCode {

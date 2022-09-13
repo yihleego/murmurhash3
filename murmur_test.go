@@ -14,13 +14,13 @@ func TestMurmur32HashInt(t *testing.T) {
 		for _, s := range Murmur32Int32 {
 			murmur := New32WithSeed(s.seed)
 			hash := murmur.HashInt(int(s.value.(int32)))
-			EqualInt32HashCode(t, hash, s)
+			EqualInt32HashCode(t, s, hash)
 		}
 	} else {
 		for _, s := range Murmur32Int64 {
 			murmur := New32WithSeed(s.seed)
 			hash := murmur.HashInt(int(s.value.(int64)))
-			EqualInt32HashCode(t, hash, s)
+			EqualInt32HashCode(t, s, hash)
 		}
 	}
 }
@@ -29,7 +29,7 @@ func TestMurmur32HashInt32(t *testing.T) {
 	for _, s := range Murmur32Int32 {
 		murmur := New32WithSeed(s.seed)
 		hash := murmur.HashInt32(s.value.(int32))
-		EqualInt32HashCode(t, hash, s)
+		EqualInt32HashCode(t, s, hash)
 	}
 }
 
@@ -37,7 +37,7 @@ func TestMurmur32HashInt64(t *testing.T) {
 	for _, s := range Murmur32Int64 {
 		murmur := New32WithSeed(s.seed)
 		hash := murmur.HashInt64(s.value.(int64))
-		EqualInt32HashCode(t, hash, s)
+		EqualInt32HashCode(t, s, hash)
 	}
 }
 
@@ -45,7 +45,7 @@ func TestMurmur32HashBytes(t *testing.T) {
 	for _, s := range Murmur32Bytes {
 		murmur := New32WithSeed(s.seed)
 		hash := murmur.HashBytes(s.value.([]byte))
-		EqualInt32HashCode(t, hash, s)
+		EqualInt32HashCode(t, s, hash)
 	}
 }
 
@@ -53,7 +53,7 @@ func TestMurmur32HashBytesWithOffset(t *testing.T) {
 	for _, s := range Murmur32BytesOffset {
 		murmur := New32WithSeed(s.seed)
 		hash := murmur.HashBytesWithOffset(s.value.([]byte), s.offset, s.length)
-		EqualInt32HashCode(t, hash, s)
+		EqualInt32HashCode(t, s, hash)
 	}
 }
 
@@ -61,37 +61,37 @@ func TestMurmur32HashString(t *testing.T) {
 	for _, s := range Murmur32String {
 		murmur := New32WithSeed(s.seed)
 		hash := murmur.HashString(s.value.(string))
-		EqualInt32HashCode(t, hash, s)
+		EqualInt32HashCode(t, s, hash)
 	}
 }
 
-func EqualInt32HashCode(t *testing.T, expected *Int32HashCode, actual *Sample) {
+func EqualInt32HashCode(t *testing.T, expected *Sample, actual *Int32HashCode) {
 	flag := true
 	msg := "seed: 0x%02x, hash: %s, value: %v"
-	args := []any{actual.seed, actual.hashHex, actual.value}
-	if expected.AsInt() != actual.hashInt {
+	args := []any{expected.seed, expected.hashHex, expected.value}
+	if expected.hashInt != actual.AsInt() {
 		msg += "\n\t\texpected int: %d, actual int: %d"
-		args = append(args, expected.AsInt(), actual.hashInt)
+		args = append(args, expected.hashInt, actual.AsInt())
 		flag = false
 	}
-	if expected.AsInt32() != actual.hashInt32 {
+	if expected.hashInt32 != actual.AsInt32() {
 		msg += "\n\t\texpected int32: %d, actual int32: %d"
-		args = append(args, expected.AsInt32(), actual.hashInt32)
+		args = append(args, expected.hashInt32, actual.AsInt32())
 		flag = false
 	}
-	if expected.AsInt64() != actual.hashInt64 {
+	if expected.hashInt64 != actual.AsInt64() {
 		msg += "\n\t\texpected int64: %d, actual int64: %d"
-		args = append(args, expected.AsInt64(), actual.hashInt64)
+		args = append(args, expected.hashInt64, actual.AsInt64())
 		flag = false
 	}
-	if !bytes.Equal(expected.AsBytes(), actual.hashBytes) {
+	if !bytes.Equal(expected.hashBytes, actual.AsBytes()) {
 		msg += "\n\t\texpected bytes: %v, actual bytes: %v"
-		args = append(args, expected.AsBytes(), actual.hashBytes)
+		args = append(args, expected.hashBytes, actual.AsBytes())
 		flag = false
 	}
-	if expected.AsHex() != actual.hashHex {
+	if expected.hashHex != actual.AsHex() {
 		msg += "\n\t\texpected hex string: %s, actual hex string: %s"
-		args = append(args, expected.AsHex(), actual.hashHex)
+		args = append(args, expected.hashHex, actual.AsHex())
 		flag = false
 	}
 	if flag {
@@ -106,13 +106,13 @@ func TestMurmur128HashInt(t *testing.T) {
 		for _, s := range Murmur128Int32 {
 			murmur := New128WithSeed(s.seed)
 			hash := murmur.HashInt(int(s.value.(int32)))
-			EqualBytesHashCode(t, hash, s)
+			EqualBytesHashCode(t, s, hash)
 		}
 	} else {
 		for _, s := range Murmur128Int64 {
 			murmur := New128WithSeed(s.seed)
 			hash := murmur.HashInt(int(s.value.(int64)))
-			EqualBytesHashCode(t, hash, s)
+			EqualBytesHashCode(t, s, hash)
 		}
 	}
 }
@@ -121,7 +121,7 @@ func TestMurmur128HashInt32(t *testing.T) {
 	for _, s := range Murmur128Int32 {
 		murmur := New128WithSeed(s.seed)
 		hash := murmur.HashInt32(s.value.(int32))
-		EqualBytesHashCode(t, hash, s)
+		EqualBytesHashCode(t, s, hash)
 	}
 }
 
@@ -129,7 +129,7 @@ func TestMurmur128HashInt64(t *testing.T) {
 	for _, s := range Murmur128Int64 {
 		murmur := New128WithSeed(s.seed)
 		hash := murmur.HashInt64(s.value.(int64))
-		EqualBytesHashCode(t, hash, s)
+		EqualBytesHashCode(t, s, hash)
 	}
 }
 
@@ -137,7 +137,7 @@ func TestMurmur128HashBytes(t *testing.T) {
 	for _, s := range Murmur128Bytes {
 		murmur := New128WithSeed(s.seed)
 		hash := murmur.HashBytes(s.value.([]byte))
-		EqualBytesHashCode(t, hash, s)
+		EqualBytesHashCode(t, s, hash)
 	}
 }
 
@@ -145,7 +145,7 @@ func TestMurmur128HashBytesWithOffset(t *testing.T) {
 	for _, s := range Murmur128BytesOffset {
 		murmur := New128WithSeed(s.seed)
 		hash := murmur.HashBytesWithOffset(s.value.([]byte), s.offset, s.length)
-		EqualBytesHashCode(t, hash, s)
+		EqualBytesHashCode(t, s, hash)
 	}
 }
 
@@ -153,37 +153,32 @@ func TestMurmur128HashString(t *testing.T) {
 	for _, s := range Murmur128String {
 		murmur := New128WithSeed(s.seed)
 		hash := murmur.HashString(s.value.(string))
-		EqualBytesHashCode(t, hash, s)
+		EqualBytesHashCode(t, s, hash)
 	}
 }
 
-func EqualBytesHashCode(t *testing.T, expected *BytesHashCode, actual *Sample) {
+func EqualBytesHashCode(t *testing.T, expected *Sample, actual *BytesHashCode) {
 	flag := true
 	msg := "seed: 0x%02x, hash: %s, value: %v"
-	args := []any{actual.seed, actual.hashHex, actual.value}
-	/*if expected.AsInt() != actual.hashInt {
-		msg += "\n\t\texpected int: %d, actual int: %d"
-		args = append(args, expected.AsInt(), actual.hashInt)
-		flag = false
-	}*/
-	if expected.AsInt32() != actual.hashInt32 {
+	args := []any{expected.seed, expected.hashHex, expected.value}
+	if expected.hashInt32 != actual.AsInt32() {
 		msg += "\n\t\texpected int32: %d, actual int32: %d"
-		args = append(args, expected.AsInt32(), actual.hashInt32)
+		args = append(args, expected.hashInt32, actual.AsInt32())
 		flag = false
 	}
-	if expected.AsInt64() != actual.hashInt64 {
+	if expected.hashInt64 != actual.AsInt64() {
 		msg += "\n\t\texpected int64: %d, actual int64: %d"
-		args = append(args, expected.AsInt64(), actual.hashInt64)
+		args = append(args, expected.hashInt64, actual.AsInt64())
 		flag = false
 	}
-	if !bytes.Equal(expected.AsBytes(), actual.hashBytes) {
+	if !bytes.Equal(expected.hashBytes, actual.AsBytes()) {
 		msg += "\n\t\texpected bytes: %v, actual bytes: %v"
-		args = append(args, expected.AsBytes(), actual.hashBytes)
+		args = append(args, expected.hashBytes, actual.AsBytes())
 		flag = false
 	}
-	if expected.AsHex() != actual.hashHex {
+	if expected.hashHex != actual.AsHex() {
 		msg += "\n\t\texpected hex string: %s, actual hex string: %s"
-		args = append(args, expected.AsHex(), actual.hashHex)
+		args = append(args, expected.hashHex, actual.AsHex())
 		flag = false
 	}
 	if flag {

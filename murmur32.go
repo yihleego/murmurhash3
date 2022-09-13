@@ -52,8 +52,7 @@ func (h *MurmurHash32) HashInt64(i int64) *Int32HashCode {
 func (h *MurmurHash32) HashString(s string) *Int32HashCode {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh := reflect.SliceHeader{Data: sh.Data, Len: sh.Len, Cap: sh.Len}
-	bytes := *(*[]byte)(unsafe.Pointer(&bh))
-	return h.HashBytes(bytes)
+	return h.HashBytes(*(*[]byte)(unsafe.Pointer(&bh)))
 }
 
 func (h *MurmurHash32) HashBytes(bytes []byte) *Int32HashCode {
@@ -111,7 +110,6 @@ func (h *MurmurHash32) bmix(h1 uint32, bytes []byte) (uint32, []byte) {
 	return h1, bytes[blocks*4:]
 }
 
-// fmix Finalization mix - force all bits of a hash block to avalanche
 func (h *MurmurHash32) fmix(h1, length uint32) uint32 {
 	h1 ^= length
 	h1 ^= h1 >> 16
