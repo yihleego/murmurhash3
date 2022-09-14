@@ -1,5 +1,8 @@
 # MurmurHash3
 
+[![GoDoc](https://godoc.org/github.com/yihleego/murmurhash3?status.svg)](https://godoc.org/github.com/yihleego/murmurhash3)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yihleego/murmurhash3)](https://goreportcard.com/report/github.com/yihleego/murmurhash3)
+
 MurmurHash is a non-cryptographic hash function suitable for general hash-based lookup.
 
 The current version is MurmurHash3, which yields a 32-bit or 128-bit hash value. When using 128-bits, the x86 and x64 versions do not produce the same values, as the algorithms are optimized for their respective platforms.
